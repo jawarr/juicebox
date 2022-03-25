@@ -159,39 +159,37 @@ async function getPostsByUser(userId) {
 }
 
 async function createTags(tagList) {
-  if (tagList.length === 0) { 
-    return; 
+  if (tagList.length === 0) {
+    return;
   }
 
-  // need something like: $1), ($2), ($3 
-  const insertValues = tagList.map(
-    (_, index) => `$${index + 1}`).join('), (');
+  // need something like: $1), ($2), ($3
+  const insertValues = tagList.map((_, index) => `$${index + 1}`).join('), (');
   // then we can use: (${ insertValues }) in our string template
 
   // need something like $1, $2, $3
-  const selectValues = tagList.map(
-    (_, index) => `$${index + 1}`).join(', ');
+  const selectValues = tagList.map((_, index) => `$${index + 1}`).join(', ');
   // then we can use (${ selectValues }) in our string template
 
   try {
-    // insert the tags, doing nothing on conflict
-    // returning nothing, we'll query after
-    await client.query(`
+    await client.query(
+      `
       INSERT INTO tags(name)
       VALUES (${insertValues})
-      ON CONFLICT (name) DO NOTHING;`,
-      tagList 
-      );
+      ON CONFLICT (name) DO NOTHING;
+    `,
+      tagList
+    );
 
-    // select all tags where the name is in our taglist
-    // return the rows from the query
-    const { rows } = await client.query(`
+    const { rows } = await client.query(
+      `
       SELECT * FROM tags
       WHERE name
-      IN (${selectValues});`,
+      IN (${selectValues});
+    `,
       tagList
-      );
-      return rows
+    );
+    return rows;
   } catch (error) {
     throw error;
   }
