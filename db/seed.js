@@ -7,7 +7,6 @@ const {
     createPost,
     updatePost,
     getAllPosts,
-    getPostsByUser,
     createTags,
     addTagsToPost
 } = require('./index');
@@ -56,8 +55,9 @@ async function createTables() {
             name VARCHAR(255) UNIQUE NOT NULL
         );
         CREATE TABLE post_tags (
-            "postId" INTEGER REFERENCES posts(id) UNIQUE,
-            "tagId" INTEGER REFERENCES tags(id) UNIQUE
+            "postId" INTEGER REFERENCES posts(id),
+            "tagId" INTEGER REFERENCES tags(id), 
+            UNIQUE("postId", "tagId")
         );
       `);
 
