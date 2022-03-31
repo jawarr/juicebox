@@ -1,6 +1,7 @@
 const express = require('express');
 const postsRouter = express.Router();
 const { getAllPosts } = require('../db');
+const { getUserByUsername } = require('../db');
 const { createPost } = require('../db');
 const { requireUser } = require('./utils');
 
@@ -17,11 +18,21 @@ postsRouter.post('/', requireUser, async (req, res, next) => {
   }
 
   try {
-    // add authorId, title, content to postData object
-    // const post = await createPost(postData);
-    // this will create the post and the tags for us
-    // if the post comes back, res.send({ post });
-    // otherwise, next an appropriate error object 
+    const { id } = await getUserByUsername(req.user.username);
+    const authID = id;
+    postData.authorID = authID;
+    postData.title = title;
+    postData.content = content;
+    console.log(postData);
+    const post = await createPost(postData);
+    if (post) {
+      res.send({ post });
+    } else {
+      next({
+        name: 'Create Post Error',
+        message: 'Failed to create post',
+      });
+    }
   } catch ({ name, message }) {
     next({ name, message });
   }
