@@ -1,10 +1,12 @@
 const express = require('express');
 const postsRouter = express.Router();
-const { getAllPosts } = require('../db');
-const { getUserByUsername } = require('../db');
-const { createPost } = require('../db');
-const { updatePost  } = require('../db');
-const { getPostById } = require('../db');
+const { 
+  getAllPosts,
+  getUserByUsername,
+  createPost,
+  updatePost,
+  getPostById
+} = require('../db');
 const { requireUser } = require('./utils');
 
 postsRouter.delete('/:postId', requireUser, async (req, res, next) => {
@@ -30,6 +32,18 @@ postsRouter.delete('/:postId', requireUser, async (req, res, next) => {
     next({ name, message })
   }
 });
+
+postsRouter.get('/', async (req, res, next) => {
+  try {
+    const allPosts = await getAllPosts();
+    const posts = allPosts.filter((post) => {
+      return post.active || (req.user && post.author.id === req.user.id);
+    });
+
+    res.send({ posts });
+  } catch (error) {}
+});
+
 postsRouter.post('/', requireUser, async (req, res, next) => {
   const { title, content, tags = "" } = req.body;
 
